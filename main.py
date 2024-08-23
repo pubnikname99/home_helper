@@ -1,8 +1,12 @@
 from flask import Flask, render_template
 from datetime import date
+from os import environ
 
 app = Flask(__name__)
 year = date.today().year
+APP_HOST = environ.get('CUSTOM_HOST')
+APP_PORT = environ.get('CUSTOM_PORT')
+
 
 with open("data/backgrounds.txt", "r") as backgrounds, open("data/watchies.txt", "r") as watchies, \
         open("data/soundies.txt", "r") as soundies,open('data/notes.txt', "r") as notes:
@@ -27,4 +31,4 @@ def notes():
 #     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(port=23232, debug=True)
+    app.run(host=APP_HOST, port=APP_PORT, debug=True)
