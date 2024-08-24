@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Edit Note{% endblock %}
+{% block content %}
+
+<h1>DO NOT CONFUSE THIS WITH LOGIN FORM, IT IS EDIT</h1>
+<form action="/login" method="post">
+  <label for="username">Username:</label><br>
+  <input type="text" id="username" name="username"><br>
+  <label for="password">Password:</label><br>
+  <input type="password" id="password" name="password"><br><br>
+  <input type="submit" value="Submit">
+</form>
+
+{% endblock %}

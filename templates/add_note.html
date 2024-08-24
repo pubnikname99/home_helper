@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+{% block title %}Add Note{% endblock %}
+{% block content %}
+
+<h1>Add Note</h1>
+
+{{ render_form(form, novalidate=True) }}
+
+{% endblock %}

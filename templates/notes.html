@@ -1,19 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Notes</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Notes{% endblock %}
+{% block content %}
+
 <h1>Notes</h1>
+
 <a href="{{ url_for('home') }}">Home</a>
 <a href="{{ url_for('notes') }}">Notes</a>
 <b><p>Existing Notes</p></b>
 {% for entry in extracted_notes: %}
     <p>{{ entry }}</p>
 {% endfor %}
-</body>
-<footer>
-    <p>Copyright {{ year }}. Built by Pubnikname.</p>
-</footer>
-</html>
+
+{% endblock %}
