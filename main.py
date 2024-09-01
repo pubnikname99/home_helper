@@ -1,10 +1,13 @@
-from flask import Flask, render_template
+from flask import Flask, flash, redirect, url_for, render_template
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.fields.simple import SubmitField
-from wtforms.validators import DataRequired, Length
-from datetime import date
+from wtforms.validators import DataRequired, Length, length
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Integer, String, Float
+from datetime import date, datetime
 from os import environ
 
 year = date.today().year
@@ -12,26 +15,39 @@ SECRET_KEY = environ.get('CUSTOM_KEY')
 APP_HOST = environ.get('CUSTOM_HOST')
 APP_PORT = environ.get('CUSTOM_PORT')
 
+class Base(DeclarativeBase):
+  pass
+
+db = SQLAlchemy(model_class=Base)
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SECRET_KEY"] = SECRET_KEY
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///home_helper.db"
+db.init_app(app)
 bootstrap = Bootstrap5(app)
 
-with open("data/backgrounds.txt", "r") as backgrounds, open("data/watchies.txt", "r") as watchies, \
-        open("data/soundies.txt", "r") as soundies,open('data/notes.txt', "r") as notes:
-    backgrounds = backgrounds.read().splitlines()
-    watchies = watchies.read().splitlines()
-    soundies = soundies.read().splitlines()
-    extracted_notes = notes.read().splitlines()
-    #users = [line.removeprefix("User: ") for line in raw_input if line.startswith("User: ")]
+class User(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(16), unique=True)
+    email: Mapped[str] = mapped_column(unique=True)
+
+class Note(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(32))
+    body: Mapped[str] = mapped_column(String(250))
+    added: Mapped[datetime] = mapped_column(default=datetime.now())
+
+with app.app_context():
+    db.create_all()
+
+@app.context_processor
+def inject_year():
+    return dict(year=year)
 
 @app.route("/")
 def home():
-    return render_template('index.html', year=year, backgrounds=backgrounds, watchies=watchies,
-                           soundies=soundies)
-
-@app.route("/notes")
-def notes():
-    return render_template('notes.html', year=year, extracted_notes=extracted_notes)
+    flash('Very Important!', 'bg-success text-light')
+    return render_template('index.html')
 
 class LoginForm(FlaskForm):
     username = StringField('Username:', validators=[DataRequired(), Length(min=8, max=16)])
@@ -42,34 +58,47 @@ class LoginForm(FlaskForm):
 def login():
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        print(f"<h1>{login_form.username.data}, {login_form.password.data}</h1>")
-        return "<h1>hi</h1>"
+        user = User(
+            username=login_form.username.data,
+            email=login_form.password.data,
+        )
+        db.session.add(user)
+        db.session.commit()
+        return "<h1>Done</h1>"
     else:
         return render_template('login.html', year=year, form=login_form)
 
+@app.route("/notes")
+def notes():
+    with app.app_context():
+        result = db.session.execute(db.select(Note).order_by(Note.title))
+        all_notes = result.scalars().all()
+    return render_template('notes.html', all_notes=all_notes)
 
-class CreateNote(FlaskForm):
-    note_title = StringField('Note Title:', validators=[DataRequired(), Length(max=32)])
-    note_body = StringField('Note Body:', validators=[DataRequired(), Length(max=255)])
+
+class UpdateNote(FlaskForm):
+    title = StringField('Note Title:', validators=[DataRequired(), Length(max=32)])
+    body = StringField('Note Body:', validators=[DataRequired(), Length(max=255)])
     submit = SubmitField(label="Create Note")
 
-@app.route("/notes/add")
-def add_note():
-    add_note_form = CreateNote()
-    if add_note_form.validate_on_submit():
-        print(f"<h1>{add_note_form.note_title.data}, {add_note_form.note_body.data}</h1>")
-        return "<h1>hi</h1>"
+@app.route("/notes/edit", methods=["POST", "GET"])
+@app.route("/notes/edit/<note_id>", methods=["POST", "GET"])
+def update_note(note_id=None):
+    update_note_form = UpdateNote()
+    if update_note_form.validate_on_submit():
+        note = Note(
+            title=update_note_form.title.data,
+            body=update_note_form.body.data,
+        )
+        db.session.add(note)
+        db.session.commit()
+        flash('You successfully added/updated the note.', 'bg-success text-light text-center')
+        return redirect(url_for('notes'))
     else:
-        return render_template('add_note.html', year=year, form=add_note_form)
-
-# @app.route("/notes/edit/<note_id>")
-# def edit(note_id):
-#     edit_notes = CreateNote()
-#     if edit_notes.validate_on_submit():
-#         print(f"<h1>{edit_notes.username.data}, {edit_notes.password.data}</h1>")
-#         return "<h1>hi</h1>"
-#     else:
-#         return render_template('edit.html', note_id=note_id, year=year, form=edit_notes)
+        if note_id:
+            return render_template('update_note.html', form=update_note_form, note_id=note_id)
+        else:
+            return render_template('update_note.html', form=update_note_form)
 
 if __name__ == '__main__':
     app.run(host=APP_HOST, port=APP_PORT, debug=True)
