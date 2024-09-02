@@ -6,5 +6,7 @@
 <h1>Add/Update Note</h1>
 
 {{ render_form(form, novalidate=True) }}
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='body') }}
 
 {% endblock %}
