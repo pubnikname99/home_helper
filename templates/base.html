@@ -11,17 +11,47 @@
         <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/custom.css') }}">
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-              <a class="nav-item nav-link active" href="{{ url_for('home') }}">Home</a>
-              <a class="nav-item nav-link" href="{{ url_for('notes') }}">Notes</a>
+        {% if user.is_authenticated: %}
+
+
+
+
+        <header class="p-3 mb-3 border-bottom">
+            <div class="container">
+              <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+                  <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+                </a>
+
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                  <li><a class="nav-link px-2 link-body-emphasis" href="{{ url_for('home') }}">Home</a></li>
+                  <li><a class="nav-link px-2 link-body-emphasis" href="{{ url_for('notes') }}">Notes</a></li>
+                </ul>
+
+<!--                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">-->
+<!--                  <input type="search" class="form-control" placeholder="Search..." aria-label="Search">-->
+<!--                </form>-->
+
+                <a class="nav-link px-2 link-body-emphasis" href="{{ url_for('logout') }}">Log Out</a>
+
+<!--                <div class="dropdown text-end">-->
+<!--                  <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                    <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">-->
+<!--                  </a>-->
+<!--                  <ul class="dropdown-menu text-small">-->
+<!--                    <li><a class="dropdown-item" href="#">New project...</a></li>-->
+<!--                    <li><a class="dropdown-item" href="#">Settings</a></li>-->
+<!--                    <li><a class="dropdown-item" href="#">Profile</a></li>-->
+<!--                    <li><hr class="dropdown-divider"></li>-->
+<!--                    <li><a class="dropdown-item" href="#">Sign out</a></li>-->
+<!--                  </ul>-->
+<!--                </div>-->
+
+              </div>
             </div>
-          </div>
-        </nav>
+          </header>
+        {% endif %}
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             <ul class=flashes>

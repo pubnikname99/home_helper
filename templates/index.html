@@ -4,19 +4,19 @@
 
 <h1>Home Helper</h1>
 
-<ul>
-    <b><p>Backgrounds</p></b>
-    {% for entry in backgrounds: %}
-        <li><a href="{{ entry.split(' -- ')[1] }}">{{ entry.split(' -- ')[0] }}</a></li>
-    {% endfor %}
-    <b><p>Watchies</p></b>
-    {% for entry in watchies: %}
-        <li><a href="{{ entry.split(' -- ')[1] }}">{{ entry.split(' -- ')[0] }}</a></li>
-    {% endfor %}
-    <b><p>Soundies</p></b>
-    {% for entry in soundies: %}
-        <li><a href="{{ entry.split(' -- ')[1] }}">{{ entry.split(' -- ')[0] }}</a></li>
-    {% endfor %}
-</ul>
+<div class="container">
+    <div class="row">
+        {% for note in primary_notes %}
+            <div class="card col-xl-4 col-lg-6 col-sm-12 mb-2">
+                <div class="card-body">
+                    <h5 class="card-title">{{ note.title }}</h5>
+                    <p class="card-text">{{ note.body|safe }}</p>
+                </div>
+                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                <a href="{{ url_for('update_note', note_id=note.id) }}" class="btn btn-primary mb-1">Edit Note</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock %}
