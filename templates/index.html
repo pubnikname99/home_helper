@@ -2,12 +2,12 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
-<h1>Home Helper</h1>
-
-<div class="container">
+<div class="container-fluid">
+    <h1>Home Helper</h1>
+    <a type="button" class="btn btn-primary btn-lg mb-2" href="{{ url_for('update_note') }}" >Add Note</a>
     <div class="row">
         {% for note in primary_notes %}
-            <div class="card col-xl-4 col-lg-6 col-sm-12 mb-2">
+            <div class="card col-xl-3 col-md-4 mb-1">
                 <div class="card-body">
                     <h5 class="card-title">{{ note.title }}</h5>
                     <p class="card-text">{{ note.body|safe }}</p>

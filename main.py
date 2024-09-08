@@ -1,7 +1,7 @@
 from flask import Flask, flash, redirect, url_for, render_template, request
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, SearchField
 from wtforms.fields.simple import SubmitField
 from wtforms.validators import DataRequired, Length
 from flask_ckeditor import CKEditor, CKEditorField
@@ -13,12 +13,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, cur
 from datetime import date, datetime
 from os import environ
 from bleach import clean
+from urllib.parse import quote
 from werkzeug.security import check_password_hash
-
-allowed_tags = ['a', 'b', 'i', 'u', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 'blockquote']
-allowed_attrs = {
-    'a': ['href', 'title', 'target'],
-}
 
 year = date.today().year
 SECRET_KEY = environ.get('CUSTOM_KEY')
@@ -64,7 +60,29 @@ with app.app_context():
 
 @app.context_processor
 def global_vars():
-    return dict(year=year, user=current_user)
+    search_form = SearchForm()
+    return dict(year=year, user=current_user, search_form=search_form)
+
+class SearchForm(FlaskForm):
+    search_type = SelectField(choices=[("self", "This site"), ("goo", "Google"), ("yt", "YouTube")], validate_choice=True, validators=[DataRequired(), Length(min=4, max=16)])
+    search_value = SearchField(validators=[DataRequired(), Length(min=1, max=32)])
+
+@app.route("/search", methods=["POST"])
+def do_search():
+    search_form = SearchForm()
+    search_query = search_form.search_value.data
+    search_query_encoded = quote(search_query, safe='')
+    match search_form.search_type.data:
+        case "self":
+            found_notes = Note.query.where(Note.body == f"{search_form.search_value.data}", Note.title == f"{search_form.search_value.data}").order_by(Note.added).all()
+            return render_template("search.html", found_notes=found_notes)
+        case "goo":
+            return redirect(f"https://www.google.com/search?q={search_query_encoded}")
+        case "yt":
+            return redirect(f"https://www.youtube.com/results?search_query={search_query_encoded}")
+        case _:
+            flash('Invalid search type!', 'bg-success text-light')
+            return render_template(f'{request.url_rule.endpoint}')
 
 @app.route("/")
 @login_required
@@ -95,9 +113,9 @@ def login():
             return redirect(next_page or url_for('home'))
         else:
             flash('Incorrect details!', 'bg-success text-light')
-            return render_template('login.html', year=year, form=login_form)
+            return render_template('login.html', form=login_form)
     else:
-        return render_template('login.html', year=year, form=login_form)
+        return render_template('login.html', form=login_form)
 
 @app.route("/logout")
 @login_required
@@ -109,6 +127,10 @@ def logout():
 @login_required
 def notes():
     with app.app_context():
+        allowed_tags = ['a', 'b', 'i', 'u', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 'blockquote']
+        allowed_attrs = {
+            'a': ['href', 'title', 'target'],
+        }
         all_notes = Note.query.where(Note.author_id == f"{current_user.id}").order_by(Note.added).all()
         short_bodies = [clean(note.body[:40], tags=allowed_tags, attributes=allowed_attrs) for note in all_notes]
     return render_template('notes.html', all_notes=all_notes, short_bodies=short_bodies)
@@ -116,7 +138,7 @@ def notes():
 
 class UpdateNote(FlaskForm):
     title = StringField('Note Title:', validators=[DataRequired(), Length(max=32)])
-    body = CKEditorField('Note Body:', validators=[DataRequired(), Length(max=20000)])
+    body = CKEditorField('Note Body:', validators=[Length(max=20000)])
     primary = BooleanField('Primary Note')
     sticky = BooleanField('Sticky Note')
     submit = SubmitField(label="Save & Return")
@@ -147,7 +169,7 @@ def update_note(note_id=None):
             db.session.add(note)
             db.session.commit()
         flash('You successfully added/updated the note.', 'bg-success text-light text-center')
-        return redirect(url_for('notes'))
+        return redirect(url_for('home'))
     else:
         if note_id:
             update_note_form.title.data = db.get_or_404(Note, note_id).title

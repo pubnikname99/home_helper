@@ -16,7 +16,7 @@
 
 
 
-        <header class="p-3 mb-3 border-bottom">
+        <header class="p-3 mt-2">
             <div class="container">
               <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 
@@ -29,9 +29,17 @@
                   <li><a class="nav-link px-2 link-body-emphasis" href="{{ url_for('notes') }}">Notes</a></li>
                 </ul>
 
-<!--                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">-->
-<!--                  <input type="search" class="form-control" placeholder="Search..." aria-label="Search">-->
-<!--                </form>-->
+                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" target="_blank" role="search" method="POST" action="/search">
+                  <div class="row g-2 align-items-center">
+                  {{ search_form.csrf_token }}
+                  <div class="col-auto">
+                      {{ search_form.search_type(class="form-select") }}
+                  </div>
+                  <div class="col-auto">
+                      {{ search_form.search_value(size=20, class="form-control", placeholder="Search...") }}
+                  </div>
+                  </div>
+                </form>
 
                 <a class="nav-link px-2 link-body-emphasis" href="{{ url_for('logout') }}">Log Out</a>
 
@@ -51,6 +59,7 @@
               </div>
             </div>
           </header>
+
         {% endif %}
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}

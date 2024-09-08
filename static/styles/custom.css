@@ -1,7 +1,21 @@
-html {
-  background-color: honeydew;
+html, .flashes {
+  background-color: #7D6E83;
+  margin-bottom: 0;
+}
+
+header, footer {
+  background-color: #D0B8A8;
+ }
+
+.container-fluid, .form {
+  background-color: #DFD3C3;
 }
 
 .card {
-  background-color: beige;
+  background-color: #F8EDE3;
+}
+
+.btn-primary {
+  background-color: #7D6E83;
+  border: none;
 }
