@@ -99,16 +99,15 @@ def do_search():
         )
         db.session.add(new_search)
         db.session.commit()
-    match search_form.search_type.data:
-        case "self":
-            return redirect(url_for('search_results', query=search_query))
-        case "goo":
-            return redirect(f"https://www.google.com/search?q={search_query_encoded}")
-        case "yt":
-            return redirect(f"https://www.youtube.com/results?search_query={search_query_encoded}")
-        case _:
-            flash('Invalid search type!', 'bg-success text-light')
-            return render_template(f'{request.url_rule.endpoint}')
+    if search_form.search_type.data == "self":
+        return redirect(url_for('search_results', query=search_query))
+    elif search_form.search_type.data == "goo":
+        return redirect(f"https://www.google.com/search?q={search_query_encoded}")
+    elif search_form.search_type.data == "yt":
+        return redirect(f"https://www.youtube.com/results?search_query={search_query_encoded}")
+    else:
+        flash('Invalid search type!', 'bg-success text-light')
+        return render_template(f'{request.url_rule.endpoint}')
 
 @app.route("/search/results", methods=["GET"])
 @login_required
@@ -137,7 +136,7 @@ def home():
     refresh_form = RefreshForm()
     global refresh_seconds, auto_refresh_on
     if refresh_form.validate_on_submit():
-        if refresh_form.refresh_seconds.data is 9:
+        if refresh_form.refresh_seconds.data == 9:
             auto_refresh_on = False
         else:
             auto_refresh_on = True
