@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Search History{% endblock %}
+{% block content %}
+
+<h1>Search History</h1>
+<div class="row">
+    <div class="col-md-4">
+        <h4>Site Searches:</h4>
+        <ul class="list-group">
+        {% for item in found_items[::-1] %}
+            {% if item.search_type == "self": %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ item.search_value }}
+                    <span class="badge">{{ item.times_searched }}</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <h4>Google Searches:</h4>
+        <ul class="list-group">
+        {% for item in found_items[::-1] %}
+            {% if item.search_type == "goo": %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ item.search_value }}
+                    <span class="badge">{{ item.times_searched }}</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <h4>YouTube Searches:</h4>
+        <ul class="list-group">
+        {% for item in found_items[::-1] %}
+            {% if item.search_type == "yt": %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ item.search_value }}
+                    <span class="badge">{{ item.times_searched }}</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

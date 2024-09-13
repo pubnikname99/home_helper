@@ -3,10 +3,30 @@
 {% block title %}Add Note{% endblock %}
 {% block content %}
 
+<div class="row">
 <h1>Add/Update Note</h1>
 
-{{ render_form(form, novalidate=True) }}
-{{ ckeditor.load() }}
-{{ ckeditor.config(name='body', height=400) }}
+<form method="POST" action="{{ url_for('update_note', note_id=note_id) }}">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.title.label }} {{ form.title(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.body.label }} {{ form.body(class="form-control") }}
+        {{ ckeditor.load() }}
+        {{ ckeditor.config(name='body', height=400) }}
+    </div>
+    <div class="form-check mb-2">
+        {{ form.primary(class="form-check-input") }} {{ form.primary.label }}
+    </div>
+    <div class="form-check mb-2">
+        {{ form.sticky(class="form-check-input") }} {{ form.sticky.label }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+    {% if note_id %}
+        {{ form.delete(class="btn btn-danger") }}
+    {% endif %}
+</form>
 
+</div>
 {% endblock %}

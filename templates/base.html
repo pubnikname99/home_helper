@@ -9,6 +9,9 @@
             {{ bootstrap.load_css() }}
         {% endblock %}
         <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/custom.css') }}">
+        {% if auto_refresh_on: %}
+            <meta http-equiv="refresh" content="{{ refresh_seconds }}">
+        {% endif %}
     </head>
     <body>
         {% if user.is_authenticated: %}
@@ -18,65 +21,67 @@
 
         <header class="p-3 mt-2">
             <div class="container">
-              <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 
-                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-                  <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
-                </a>
+                    <!--                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">-->
+                    <!--                  <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>-->
+                    <!--                </a>-->
 
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                  <li><a class="nav-link px-2 link-body-emphasis" href="{{ url_for('home') }}">Home</a></li>
-                  <li><a class="nav-link px-2 link-body-emphasis" href="{{ url_for('notes') }}">Notes</a></li>
-                </ul>
+                    <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                        <li><a class="nav-link px-2 link-body-emphasis" href="{{ url_for('home') }}">Home</a></li>
+                        <li><a class="nav-link px-2 link-body-emphasis" href="{{ url_for('notes') }}">Notes</a></li>
+                        <li><a class="nav-link px-2 link-body-emphasis" href="{{ url_for('search_history') }}">Search History</a></li>
+                    </ul>
+                    <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" target="_blank" role="search" method="POST" action="{{ url_for('do_search') }}">
+                        <div class="row g-2 align-items-center">
+                            {{ search_form.csrf_token }}
+                            <div class="col-auto">
+                                {{ search_form.search_type(class="form-select") }}
+                            </div>
+                            <div class="col-auto">
+                                {{ search_form.search_value(size=20, class="form-control", placeholder="Search...") }}
+                            </div>
+                        </div>
+                    </form>
+                    <a class="nav-link px-2 link-body-emphasis" href="{{ url_for('logout') }}">Log Out</a>
 
-                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" target="_blank" role="search" method="POST" action="/search">
-                  <div class="row g-2 align-items-center">
-                  {{ search_form.csrf_token }}
-                  <div class="col-auto">
-                      {{ search_form.search_type(class="form-select") }}
-                  </div>
-                  <div class="col-auto">
-                      {{ search_form.search_value(size=20, class="form-control", placeholder="Search...") }}
-                  </div>
-                  </div>
-                </form>
+                    <!--                <div class="dropdown text-end">-->
+                    <!--                  <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">-->
+                    <!--                    <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">-->
+                    <!--                  </a>-->
+                    <!--                  <ul class="dropdown-menu text-small">-->
+                    <!--                    <li><a class="dropdown-item" href="#">New project...</a></li>-->
+                    <!--                    <li><a class="dropdown-item" href="#">Settings</a></li>-->
+                    <!--                    <li><a class="dropdown-item" href="#">Profile</a></li>-->
+                    <!--                    <li><hr class="dropdown-divider"></li>-->
+                    <!--                    <li><a class="dropdown-item" href="#">Sign out</a></li>-->
+                    <!--                  </ul>-->
+                    <!--                </div>-->
 
-                <a class="nav-link px-2 link-body-emphasis" href="{{ url_for('logout') }}">Log Out</a>
-
-<!--                <div class="dropdown text-end">-->
-<!--                  <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                    <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">-->
-<!--                  </a>-->
-<!--                  <ul class="dropdown-menu text-small">-->
-<!--                    <li><a class="dropdown-item" href="#">New project...</a></li>-->
-<!--                    <li><a class="dropdown-item" href="#">Settings</a></li>-->
-<!--                    <li><a class="dropdown-item" href="#">Profile</a></li>-->
-<!--                    <li><hr class="dropdown-divider"></li>-->
-<!--                    <li><a class="dropdown-item" href="#">Sign out</a></li>-->
-<!--                  </ul>-->
-<!--                </div>-->
-
-              </div>
+                </div>
             </div>
-          </header>
-
+        </header>
         {% endif %}
+        <div class="container-fluid">
+
         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
+        {% if messages %}
             <ul class=flashes>
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
             </ul>
-          {% endif %}
+        {% endif %}
         {% endwith %}
+
         {% block content %}{% endblock %}
+        </div>
+
+        <footer>
+            <p>Copyright {{ year }}. Built by Pubnikname.</p>
+        </footer>
         {% block scripts %}
-            <!-- Optional JavaScript -->
             {{ bootstrap.load_js() }}
         {% endblock %}
     </body>
-    <footer>
-        <p>Copyright {{ year }}. Built by Pubnikname.</p>
-    </footer>
 </html>
